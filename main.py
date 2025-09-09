@@ -1,68 +1,80 @@
+import logging
+from models import models_main, session
 
-tasks = []
+import db_functions as db_f
+import ui
+from handlers import (
+    handle_show_tasks,
+    handle_add_tasks,
+    handle_update_task,
+    handle_mark_task_as_done,
+    handle_delete_task
+)
 
-def show_tasks(tasks):
-    if tasks:
-      for i, task in enumerate(tasks, start=1):
-         status = '✅' if task['done'] else '❌'
-         print(f'{i}. {task['title']} {status}')
-    else:
-      print('Няма задачаў')
+#--- Logging cofiguration ---
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+   level=logging.INFO,
+   format='%(filename)s:%(lineno)d #%(levelname)-8s '
+          '[%(asctime)s] - %(name)s - %(message)s'
+          )
 
-def add_task(tasks, title):
-    tasks.append({'title': title, 'done': False})
-    print(f'Задача "{title}" паспяхова дададзена!')
-
-def complete_task(tasks, index):
-    if 0 <= index <= len(tasks):
-      tasks[index]['done'] = True
-      print(f'Задача "{tasks[index]['title']}" выканана!')
-    else: 
-       print('Няправильны нумар')
-
-def delete_task(tasks, index):
-   if 0 <= index <= len(tasks):
-        removed = tasks.pop(index)
-        print(f'Задача "{removed['title']}" выдалена са спісу')
-   
-
-
+#--- Main Function ---
 def main():
-   print('--- To-Do List ---',
-         '1. Паказаць усе задачы',
-         '2. Дадаць задачу',
-         '3. Выканаць задачу',
-         '4. Выдаліць задачу',
-         '5. Выйсці',
-         sep='\n')
-   
+    logger.info('Starting application')
 
-   while True:
-    choice = input('Абярыце опцыю: ')
-    if choice == '1':
-        show_tasks(tasks)
-    elif choice == '2':
-       title = input('Увядзіце задачу: ')
-       add_task(tasks, title)
-    elif choice == '3':
-        try:
-            index = int(input('Увядзіце нумар задачы: '))-1
-            complete_task(tasks, index)
-        except:
-            print('Вы ўвялі няправільную лічбу')
-          
-    elif choice == '4':
-        try:
-            index = int(input('Увядзіце нумар задачы: '))-1
-            delete_task(tasks, index)
-        except:
-            print('Вы ўвялі няправільную лічбу')
-    elif choice == '5':
-       print('Да пабачэння!')
-       break
-    else: 
-       print('Няправільны выбар')
+    # Create database and tables
+    models_main()
+    logger.info('Database and tables created')
 
+    # Create a new database session
+    db = session()
+    logger.info('Database session created')
+    
+    try:
+    #--- Main loop ---
+        while True:
+            ui.show_menu()
+            choice = ui.get_user_choice('1-5')
+            
+            # Show tasks
+            if choice == '1':
+                handle_show_tasks(db)
 
+            # Add a new task
+            elif choice == '2':
+                handle_add_tasks(db)             
+            
+            # Update task
+            elif choice == '3':
+                handle_update_task(db)
+                
+            # Mark task as done
+            elif choice == '4':
+                handle_mark_task_as_done(db)
+
+            
+            # Delete a task        
+            elif choice == '5':
+               handle_delete_task            
+
+            # Exit
+            elif choice == '6':
+                ui.show_message('Goodbye!')
+                break
+
+            elif choice == '':
+                continue
+
+            else:
+                ui.show_message('Invalid option. Please try again.')
+    
+    finally:
+        db.close()
+        logger.info('Database session closed')
+            
 if __name__ == '__main__':
    main()
+
+
+
