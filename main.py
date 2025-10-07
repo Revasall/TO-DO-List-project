@@ -1,4 +1,5 @@
 import logging
+
 from models import models_main, session
 
 import db_functions as db_f
@@ -56,7 +57,7 @@ def main():
             
             # Delete a task        
             elif choice == '5':
-               handle_delete_task            
+               handle_delete_task(db)           
 
             # Exit
             elif choice == '6':
