@@ -10,7 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from config import config
+from app.config import config
 from datetime import datetime
 
 
@@ -32,26 +32,25 @@ class User(Base):
     user_name: Mapped[str] = mapped_column(String, unique=True)
     email: Mapped[str] = mapped_column(String, unique=True)
     password: Mapped[str] = mapped_column(String)
-    tasks: Mapped[List['Task']]= relationship(back_populates='owner')
 
 # ---Model Task---
 class Task(Base):
     __tablename__ = "tasks"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(200))
-    description: Mapped[str] = mapped_column(String, nullable=True)
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str|None] = mapped_column(String, nullable=True)
     deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     priority: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
     done: Mapped[bool] = mapped_column(Boolean, default=False)
-    completed_at: Mapped[datetime] = mapped_column(
+    completed_at: Mapped[datetime|None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-    owner_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'))
-    owner: Mapped['User'] = relationship(back_populates='tasks')
+    owner_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
+
 
 
 async def async_models_main():
