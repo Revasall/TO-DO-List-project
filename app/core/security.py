@@ -1,12 +1,10 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
-from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-
 import jwt
 from pwdlib import PasswordHash
 
 from app.core.config import settings
+from app.core.exceptions import ExpiredTokenError, InvalidTokenError
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
@@ -31,3 +29,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     to_encode.update({'exp':expire})
     encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encode_jwt
+
+def decode_acces_token(token:str) -> dict:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError: 
+        raise ExpiredTokenError()
+    except jwt.InvalidTokenError:
+        raise InvalidTokenError()
+    

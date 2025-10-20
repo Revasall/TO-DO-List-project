@@ -4,13 +4,17 @@ from datetime import datetime
 
 from app.database.models import User, Task
 from app.schemas import TaskCreate, UserCreate
+from app.core.exceptions import ObjectNotFoundError, InvalidDataError, UserNotFoundError
 
 
 # --- Task CRUD  ---
 async def create_task(db: AsyncSession, task_data: TaskCreate, user_id: int) -> Task:
+    if not task_data.title:
+        raise InvalidDataError('Task title cannot be empty.')
     new_task = Task(
         **task_data.model_dump(),
         owner_id = user_id)
+    
     db.add(new_task)
     await db.commit()
     await db.refresh(new_task)
@@ -18,20 +22,24 @@ async def create_task(db: AsyncSession, task_data: TaskCreate, user_id: int) -> 
 
 async def get_all_tasks_titles(db: AsyncSession, user_id: int) -> list[Task]:
     tasks = await db.execute(select(Task.id, Task.title, Task.deadline).where(Task.owner_id==user_id).order_by(Task.priority))
+    if not tasks:
+        raise ObjectNotFoundError('Tasks list')
     return [dict(task._mapping) for task in tasks]
 
 async def get_one_task(db: AsyncSession, task_id:int) -> Task:
     task = await db.scalar(select(Task).where(Task.id==task_id))
+    if not task:
+        raise ObjectNotFoundError('Task')
     return task
 
 async def update_task(db: AsyncSession, task_id: int, data: dict) -> Task:
     task = await db.scalar(select(Task).where(Task.id==task_id))
 
     if not task:
-        return None
+        raise ObjectNotFoundError('Task')
     
     if not data:
-        return task
+        raise InvalidDataError('Update data cannot be empty.')
     
     for key, value in data.items():
         if value:
@@ -53,10 +61,6 @@ async def delete_task(db:AsyncSession, task_id: int) -> bool:
 # --- User CRUD ---
 
 async def create_user(db:AsyncSession, user_data: UserCreate) -> User:
-    exciting_user = await db.scalar(select(User).where(or_(User.username==user_data.username, User.email==user_data.email)))
-    if exciting_user: 
-        raise ValueError("User already exists") #UserExicst
-    
     new_user = User(username=user_data.username, email = user_data.email, hashed_password = user_data.password)
     db.add(new_user)
     await db.commit()
@@ -64,8 +68,10 @@ async def create_user(db:AsyncSession, user_data: UserCreate) -> User:
     return new_user
 
 async def get_user_by_id(db: AsyncSession, user_id:int) -> User:
-        user = await db.scalar(select(User).where(User.id==user_id))
-        return user
+    user = await db.scalar(select(User).where(User.id==user_id))
+    if not user:
+        raise UserNotFoundError()
+    return user
 
 async def get_user_by_username(db: AsyncSession, username: str) -> User:
     user = await db.scalar(select(User).where(User.username==username))
@@ -75,10 +81,10 @@ async def update_user(db: AsyncSession, user_id: int, data: dict) -> User:
     user = await db.scalar(select(User).where(User.id==user_id))
 
     if not user:
-        raise ValueError #User not found 
+        raise UserNotFoundError()
     
     if not data:
-        return user
+        raise InvalidDataError('Update data cannot be empty.')
     
     for key, value in data.items():
         if value:
@@ -90,8 +96,6 @@ async def update_user(db: AsyncSession, user_id: int, data: dict) -> User:
 
 async def delete_user(db: AsyncSession, user_id: int) -> bool:
     result = await db.execute(delete(User).where(User.id==user_id))
-    if not result:
-        raise ValueError #User not found 
     await db.commit()
     return result
 
