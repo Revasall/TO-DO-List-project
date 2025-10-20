@@ -16,11 +16,11 @@ async def create_task(db: AsyncSession, task_data: TaskCreate, user_id: int) -> 
     await db.refresh(new_task)
     return new_task
 
-async def read_all_tasks_titles(db: AsyncSession, user_id: int) -> list[Task]:
+async def get_all_tasks_titles(db: AsyncSession, user_id: int) -> list[Task]:
     tasks = await db.execute(select(Task.id, Task.title, Task.deadline).where(Task.owner_id==user_id).order_by(Task.priority))
     return [dict(task._mapping) for task in tasks]
 
-async def read_one_task(db: AsyncSession, task_id:int) -> Task:
+async def get_one_task(db: AsyncSession, task_id:int) -> Task:
     task = await db.scalar(select(Task).where(Task.id==task_id))
     return task
 
@@ -53,19 +53,23 @@ async def delete_task(db:AsyncSession, task_id: int) -> bool:
 # --- User CRUD ---
 
 async def create_user(db:AsyncSession, user_data: UserCreate) -> User:
-    exciting_user = await db.scalar(select(User).where(or_(User.user_name==user_data.user_name, User.email==user_data.email)))
+    exciting_user = await db.scalar(select(User).where(or_(User.username==user_data.username, User.email==user_data.email)))
     if exciting_user: 
         raise ValueError("User already exists") #UserExicst
     
-    new_user = User(**user_data.model_dump())
+    new_user = User(username=user_data.username, email = user_data.email, hashed_password = user_data.password)
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
     return new_user
 
-async def read_user(db: AsyncSession, user_id:int) -> User:
+async def get_user_by_id(db: AsyncSession, user_id:int) -> User:
         user = await db.scalar(select(User).where(User.id==user_id))
         return user
+
+async def get_user_by_username(db: AsyncSession, username: str) -> User:
+    user = await db.scalar(select(User).where(User.username==username))
+    return user
 
 async def update_user(db: AsyncSession, user_id: int, data: dict) -> User:
     user = await db.scalar(select(User).where(User.id==user_id))

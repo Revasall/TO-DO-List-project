@@ -1,10 +1,11 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
+from typing import Optional
 
 
 # --- Users schemas ---
 class UserBase(BaseModel):
-    user_name: str = Field(max_length=20)
+    username: str = Field(max_length=20)
     email: EmailStr
 
 
@@ -20,7 +21,7 @@ class UserRead(UserBase):
 
 
 class UserUpdate(UserBase): 
-    user_name: str | None = Field(default=None, max_length=20)
+    username: str | None = Field(default=None, max_length=20)
     email: EmailStr | None = None
     password: str = Field(default=None, max_length=20)
 
@@ -61,3 +62,10 @@ class TaskUpdate(TaskBase):
 
 TaskRead.model_rebuild()
 UserRead.model_rebuild()
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None

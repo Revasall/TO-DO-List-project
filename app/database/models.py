@@ -10,7 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app.config import config
+from app.core import config
 from datetime import datetime
 
 
@@ -29,9 +29,9 @@ class User(Base):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_name: Mapped[str] = mapped_column(String, unique=True)
+    username: Mapped[str] = mapped_column(String, unique=True)
     email: Mapped[str] = mapped_column(String, unique=True)
-    password: Mapped[str] = mapped_column(String)
+    hashed_password: Mapped[str] = mapped_column(String)
 
 # ---Model Task---
 class Task(Base):
@@ -50,7 +50,6 @@ class Task(Base):
         DateTime(timezone=True), nullable=True
     )
     owner_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
-
 
 
 async def async_models_main():
