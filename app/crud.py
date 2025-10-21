@@ -1,4 +1,6 @@
-from sqlalchemy import select, delete, or_
+from typing import Optional
+from fastapi import Query
+from sqlalchemy import func, select, delete, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime      
 
@@ -20,10 +22,36 @@ async def create_task(db: AsyncSession, task_data: TaskCreate, user_id: int) -> 
     await db.refresh(new_task)
     return new_task
 
-async def get_all_tasks_titles(db: AsyncSession, user_id: int) -> list[Task]:
-    tasks = await db.execute(select(Task.id, Task.title, Task.deadline).where(Task.owner_id==user_id).order_by(Task.priority))
-    if not tasks:
-        raise ObjectNotFoundError('Tasks list')
+async def get_list_tasks_titles(db: AsyncSession, 
+                                user_id: int, 
+                                offset:int, 
+                                limit:int, 
+                                status_filter: bool | None = None,
+                                priority_filter: int | None = None,
+                                sort_by: str = 'id',
+                                sort_order: str = 'asc'
+                                ) -> list[dict]:
+    
+    if not hasattr(Task, sort_by):
+        raise ValueError(f"Invalid sort field: {sort_by}")
+    
+    query = select(Task.id, Task.title, Task.deadline).where(Task.owner_id==user_id)
+    
+    if status_filter is not None:
+        query = query.where(Task.done == status_filter)
+    if priority_filter is not None:
+        query = query.where(Task.priority == priority_filter)
+
+    if sort_order == 'desc':
+        query = query.order_by(getattr(Task, sort_by).desc())
+    else: 
+        query = query.order_by(getattr(Task, sort_by).asc())
+
+    query = query.offset(offset).limit(limit)
+    
+
+    tasks = await db.execute(query) 
+    
     return [dict(task._mapping) for task in tasks]
 
 async def get_one_task(db: AsyncSession, task_id:int) -> Task:

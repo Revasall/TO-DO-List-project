@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 from typing import List
 
 from app import crud
@@ -20,12 +20,28 @@ async def create_task(
     return await crud.create_task(session, task_data, current_user.id)
 
 @router.get('/', response_model=List[TaskSummary])
-async def get_all_tasks(
+async def get_tasks_list(
     current_user: UserDep, 
     session: SessionDep,
-    ):
+    page:int = Query(ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    status: bool | None = None,
+    priority: int | None = None,
+    sort: str = 'id',
+    sort_order: str = 'asc'):
    
-   tasks_list = await crud.get_all_tasks_titles(session, current_user.id)
+   offset = (page-1) * limit
+
+   tasks_list = await crud.get_list_tasks_titles(
+       session, 
+       current_user.id, 
+       offset, 
+       limit, 
+       status_filter=status,
+       priority_filter=priority,
+       sort_by=sort,
+       sort_order=sort_order)
+   
    return tasks_list
 
 @router.get('/{task_id}', response_model=TaskRead)
@@ -59,7 +75,7 @@ async def delete_task(
     session: SessionDep
     ):
     
-    task = await crud.read_one_task(session, task_id)
+    task = await crud.get_one_task(session, task_id)
     await verify_task_access(task, current_user.id)
     await crud.delete_task(session, task_id)
     
