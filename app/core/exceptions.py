@@ -73,7 +73,7 @@ class TaskNotFoundError(HTTPException):
             status_code = status.HTTP_404_NOT_FOUND,
             detail = 'Task not found.')
         
-class TaskAccesDeniedError(HTTPException):
+class TaskAccessDeniedError(HTTPException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,

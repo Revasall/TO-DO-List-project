@@ -25,7 +25,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sess
     if not user: 
         raise InvalidCredentialsError()
     access_token = create_access_token(
-        data={'sub': user.id}
+        data={'sub': str(user.id)}
         )
     return Token(access_token=access_token, token_type='bearer')
 
