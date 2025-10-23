@@ -33,11 +33,19 @@ class InvalidCredentialsError(HTTPException):
             headers={"WWW-Authenticate": "Bearer"}
         )
 
+class InvalidTokenTypeError(HTTPException):
+    def __init__(self, token_type: str, expected_type:str):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f'The received token type ({token_type}) does not match the expected ({expected_type}).',
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
 class InvalidTokenError(HTTPException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid authenticate token.',
+            detail='Invalid jwt token.',
             headers={"WWW-Authenticate": "Bearer"}
         )
 
@@ -48,6 +56,7 @@ class ExpiredTokenError(HTTPException):
             detail='Token has expired.',
             headers={"WWW-Authenticate": "Bearer"}
         )
+
 
 # Users Errors 
 

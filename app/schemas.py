@@ -65,7 +65,8 @@ UserRead.model_rebuild()
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    refresh_token: str
+    token_type: str = 'bearer'
 
 class TokenData(BaseModel):
     username: Optional[str] = None

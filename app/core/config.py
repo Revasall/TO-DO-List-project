@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(default='secretkey')
     ALGORITHM: str = Field(default='HS256')
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30)
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=30)
 
 
     class Config:
