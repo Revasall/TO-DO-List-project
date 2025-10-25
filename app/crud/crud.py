@@ -1,11 +1,9 @@
-from typing import Optional
-from fastapi import Query
-from sqlalchemy import func, select, delete, or_
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime      
 
 from app.database.models import User, Task
-from app.schemas import TaskCreate, UserCreate
+from app.schemas.schemas import TaskCreate, UserCreate
 from app.core.exceptions import ObjectNotFoundError, InvalidDataError, UserNotFoundError
 
 
@@ -126,99 +124,3 @@ async def delete_user(db: AsyncSession, user_id: int) -> bool:
     result = await db.execute(delete(User).where(User.id==user_id))
     await db.commit()
     return result
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # --- User registration
-# #....
-
-# # --- Show tasks requests ---
-# async def get_tasks(db: AsyncSession, owner_id:int) -> list[Task]:   
-#     result = await db.execute(select(Task).where(Task.owner_id==owner_id))
-#     return result.scalasrs().all()
-
-# async def get_one_task(db: AsyncSession, task_id:int) -> Task:   
-#     result = await db.scalar(select(Task).where(Task.id==task_id))
-#     return result
-
-
-# # # -Filters-
-# # async def get_tasks_by_status(db: Session, done: bool) -> list[Task]:
-# #     async with async_session() as session:  
-# #         await db.scalars(select(Task).where(Task.done == done)).all()
-    
-
-# # async def get_tasks_by_deadline(db: Session, date_from:datetime, date_to:datetime):
-# #     async with async_session() as session:  
-# #         await db.scalars(select(Task).where(
-# #             Task.deadline != None,
-# #             Task.deadline >= date_from,
-# #             Task.deadline <= date_to
-# #             )).all()
-
-# # async def get_tasks_by_priority(db: Session, priority: int) -> list[Task]:
-# #     async with async_session() as session:
-# #         await db.scalars(select(Task).where(Task.priority == priority))
-                    
-
-# # --- Create task request---
-# async def create_task(db:AsyncSession, task_data: TaskCreate, owner_id: int) -> Task:
-#     new_task = Task(
-#         **task_data.model_dump(),
-#         created_at=datetime.now(),
-#         done=False,
-#         completed_at=None,
-#         owner_id=owner_id
-#         )
-#     db.add(new_task)
-#     db.commit()
-#     db.refresh(new_task)
-#     await new_task
-
-# # --- Update task requests ---
-# async def update_task(db: AsyncSession, task_data: TaskUpdate, task_id: int) -> Task|None:
-#     task = select(Task).where(Task.id == task_id)
-#     db.commit()
-#     db.refresh(task)
-#     await task
-#     await  None
-
-# async def mark_task_as_done(db: Session, task_id: int) -> Task|None:
-#     task = db.scalar(select(Task).where(Task.id == task_id))
-#     if task:
-#         task.done = True
-#         task.completed_at = datetime.now()
-#         db.commit()
-#         db.refresh(task)
-#         return task
-#     return None
-
-# # --- Delete task request ---
-# async def delete_task(db: Session, task_id: int) -> Task|None:
-#     task = db.scalar(select(Task).where(Task.id == task_id))
-#     if task:
-#         db.delete(task)
-#         db.commit()
-#         return task
-#     return None
-
-

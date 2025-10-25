@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.core.exceptions import ExpiredTokenError, InvalidTokenError, InvalidTokenTypeError, InvalidCredentialsError
 from app.database.database import SessionDep
 from app.database.models import User
-from app.crud import get_user_by_id
+from app.crud.crud import get_user_by_id
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM

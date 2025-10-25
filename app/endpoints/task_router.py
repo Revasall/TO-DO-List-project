@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Query, status
 from typing import List
 
-from app import crud
-from app.schemas import TaskSummary, TaskCreate, TaskRead, TaskUpdate
+from app.crud import crud
+from app.schemas.schemas import TaskSummary, TaskCreate, TaskRead, TaskUpdate
 from app.database.database import SessionDep
 from app.core.exceptions import TaskNotFoundError, TaskAccessDeniedError
-from app.core.security import UserDep
-from app.core.access import verify_task_access
+from app.security.security import UserDep
+from app.security.access import verify_task_access
 
 router = APIRouter(prefix='/user/tasks', tags=['Tasks'])
 
