@@ -23,7 +23,7 @@ async def autenticate_user(db: AsyncSession, username: str, plain_password: str)
     return user
 
 @router.post('/login')
-@limiter.limit('5/minute')
+@limiter.limit('10/minute')
 async def login(
     request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],

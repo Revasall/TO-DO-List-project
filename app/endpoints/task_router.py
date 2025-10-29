@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query, status
-from typing import List
+from typing import List, Literal
 
 from app.crud import crud
 from app.schemas.schemas import TaskSummary, TaskCreate, TaskRead, TaskUpdate
@@ -23,11 +23,11 @@ async def create_task(
 async def get_tasks_list(
     current_user: UserDep, 
     session: SessionDep,
-    page:int = Query(ge=1),
+    page:int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     status: bool | None = None,
     priority: int | None = None,
-    sort: str = 'id',
+    sort: Literal['id', 'priority', 'title', 'deadline', 'done'] = 'id',
     sort_order: str = 'asc'):
    
    offset = (page-1) * limit

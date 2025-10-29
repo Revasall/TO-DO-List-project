@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from datetime import datetime
 from typing import Optional
 
@@ -16,8 +16,8 @@ class UserCreate(UserBase):
 class UserRead(UserBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 
 class UserUpdate(UserBase): 
@@ -37,7 +37,8 @@ class TaskBase(BaseModel):
 class TaskSummary(BaseModel):
     id: int
     title: str
-    deadline: datetime
+    deadline: datetime|None
+    done: bool|None
 
 class TaskCreate(TaskBase):...
 
@@ -50,8 +51,7 @@ class TaskRead(TaskBase):
     owner_id: int
 
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TaskUpdate(TaskBase):

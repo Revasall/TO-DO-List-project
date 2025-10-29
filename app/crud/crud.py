@@ -5,6 +5,7 @@ from datetime import datetime
 from app.database.models import User, Task
 from app.schemas.schemas import TaskCreate, UserCreate
 from app.core.exceptions import ObjectNotFoundError, InvalidDataError, UserNotFoundError
+# from app.security.security import get_password_hash
 
 
 # --- Task CRUD  ---
@@ -23,17 +24,17 @@ async def create_task(db: AsyncSession, task_data: TaskCreate, user_id: int) -> 
 async def get_list_tasks_titles(db: AsyncSession, 
                                 user_id: int, 
                                 offset:int, 
-                                limit:int, 
+                                limit:int,
+                                sort_by: str, 
                                 status_filter: bool | None = None,
                                 priority_filter: int | None = None,
-                                sort_by: str = 'id',
                                 sort_order: str = 'asc'
                                 ) -> list[dict]:
     
     if not hasattr(Task, sort_by):
         raise ValueError(f"Invalid sort field: {sort_by}")
     
-    query = select(Task.id, Task.title, Task.deadline).where(Task.owner_id==user_id)
+    query = select(Task.id, Task.title, Task.deadline, Task.done).where(Task.owner_id==user_id)
     
     if status_filter is not None:
         query = query.where(Task.done == status_filter)
