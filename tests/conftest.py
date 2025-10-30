@@ -98,24 +98,3 @@ async def test_tasks_list(session, test_user):
     for task in tasks_list:
         await session.delete(task)
     await session.commit()
-
-# Для запуска всех тестов проекта выполните команду:
-# pytest
-                
-# Запустить тесты из конкретного файла:
-# pytest tests/test_main.py
-                  
-# Остановиться на первом упавшем тесте:
-# pytest -x
-                  
-# Перезапустить только упавшие тесты:
-# pytest --lf
-                  
-# Запуск тестов, измененных с последнего коммита (если установлен pytest-xdist):
-# pytest --last-failed
-                  
-# Запуск тестов с измерением времени выполнения:
-# pytest --durations=5
-                  
-# Пропуск тестов с определенной меткой (например, медленных):
-# pytest -m "not slow"
