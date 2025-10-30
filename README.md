@@ -165,6 +165,10 @@ Python backend developer
 
 Philosopher and logician
 
+Project URL: https://roadmap.sh/projects/todo-list-api
+
 📧 Email: [matvejreut@gmail.com]
 
 🐙 GitHub: [https://github.com/Revasall]
+
+
